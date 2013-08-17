@@ -59,5 +59,3 @@ start('tictactoe' /* ... */)
 ```
 
 opens http://www.gstatic.com/eureka/sample/tictactoe/tictactoe.html
-
-
