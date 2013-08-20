@@ -1,5 +1,6 @@
 var request = require('request');
 var url = require('url');
+var qs = require('querystring');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var WebSocket = require('ws');
@@ -39,6 +40,21 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
   }
 
   if (name.toLowerCase() === 'youtube') {
+    if (resource.indexOf('v=')) {
+      var urlParts = url.parse(resource);
+
+      if (urlParts.query) {
+        var queryParts = qs.parse(urlParts.query);
+        if (queryParts.v) {
+          resource = queryParts.v;
+        } else {
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+
     resource = 'v=' + resource;
 
     req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
