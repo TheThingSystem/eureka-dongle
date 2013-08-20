@@ -15,6 +15,7 @@ function EurekaDongle(base) {
 util.inherits(EurekaDongle, EventEmitter);
 
 EurekaDongle.prototype.timer = null;
+EurekaDongle.prototype.currentApp = null;
 
 var appList = null;
 EurekaDongle.prototype.collectAppList = function(fn) {
@@ -38,6 +39,8 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
     },
     method : 'POST',
   }
+  
+  this.currentApp = name;
 
   if (name.toLowerCase() === 'youtube') {
     if (resource.indexOf('v=')) {
@@ -99,19 +102,23 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
     })();
   }
 
-  request(this.url + '/apps/YouTube', req, callback);
+  request(this.url + '/apps/' + name, req, callback);
 };
 
 EurekaDongle.prototype.stop = function(name, callback) {
   var appsUrl = this.url + '/apps/' + name;
   var that = this;
 
+  if (!arguments.length) {
+    name = this.currentApp;
+  }
+
   request.del(appsUrl, function() {
     // We really need to ensure it's gone or a restart will cause
     // 408s
     that.timer = setTimeout(function() {
       that.emit('stopped');
-      callback();
+      callback && callback();
     }, 2000);
   });
 
