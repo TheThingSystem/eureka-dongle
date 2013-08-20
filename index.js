@@ -32,6 +32,16 @@ EurekaDongle.prototype.collectAppList = function(fn) {
 };
 
 EurekaDongle.prototype.start = function(name, resource, callback) {
+  var that = this;
+
+  if (!name) {
+    return request(this.url + '/apps', {followRedirect: false}, function(e, r, b) {
+      if (r && r.headers.location) {
+        var name = r.headers.location.split('/').pop();
+        that.start(name, resource, callback);
+      }
+    });
+  }
 
   var req = {
     headers: {
@@ -43,7 +53,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
   this.currentApp = name;
 
   if (name.toLowerCase() === 'youtube') {
-    if (resource.indexOf('v=')) {
+    if (resource && resource.indexOf('v=')) {
       var urlParts = url.parse(resource);
 
       if (urlParts.query) {
@@ -56,9 +66,12 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
       } else {
         return;
       }
+
+      resource = 'v=' + resource;
+    } else {
+      resource = '';
     }
 
-    resource = 'v=' + resource;
 
     req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
@@ -78,7 +91,6 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
     this.emit('launching');
 
     (function waitForDevice() {
-
       request.post(that.url + '/connection/YouTube', {
         headers: {
           'Content-Type' : 'application/json',
@@ -102,7 +114,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
     })();
   }
 
-  request(this.url + '/apps/' + name, req, callback);
+  resource && request(this.url + '/apps/' + name, req, callback);
 };
 
 EurekaDongle.prototype.stop = function(name, callback) {
