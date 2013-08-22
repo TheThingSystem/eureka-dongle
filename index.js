@@ -31,6 +31,8 @@ EurekaDongle.prototype.collectAppList = function(fn) {
   });
 };
 
+EurekaDongle.prototype.statusInterval = 500;
+
 EurekaDongle.prototype.start = function(name, resource, callback) {
   var that = this;
 
@@ -67,7 +69,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
         return;
       }
 
-      resource = 'v=' + resource;
+      resource = 'v=' + resource + '&pairingCode=eac4ae42-8b54-4441-9be3-1111111111';
     } else {
       resource = '';
     }
@@ -154,17 +156,21 @@ EurekaDongle.prototype.prepareRampSocket = function(b) {
     if (first) {
       var status = data[1].status;
 
-      ws.send(JSON.stringify([
-        "cv", {
-          "type":"activity",
-          "message": {
-            "type":"update_description",
-            "activityId":status.content_id,
-            "description":status.title,
-            "iconUrl":status.image_url
+      try {
+        ws.send(JSON.stringify([
+          "cv", {
+            "type":"activity",
+            "message": {
+              "type":"update_description",
+              "activityId":status.content_id,
+              "description":status.title,
+              "iconUrl":status.image_url
+            }
           }
-        }
-      ]), { mask: true });
+        ]), { mask: true });
+      } catch (e) {
+        that.emit('error', e);
+      }
 
       that.getStatus();
 
@@ -178,15 +184,19 @@ EurekaDongle.prototype.prepareRampSocket = function(b) {
 
       that.timer = setTimeout(function() {
         that.getStatus()
-      }, 500);
+      }, that.statusInterval);
     }
   });
 };
 
 EurekaDongle.prototype.getStatus = function() {
-  this.ws.send(JSON.stringify([
-    'ramp', { cmd_id : 1000, type: 'INFO' }
-  ]), { mask: true });
+  try {
+    this.ws.send(JSON.stringify([
+      'ramp', { cmd_id : 1000, type: 'INFO' }
+    ]), { mask: true });
+  } catch (e) {
+    this.emit('error', e);
+  }
 };
 
 module.exports = EurekaDongle;
