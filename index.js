@@ -7,7 +7,7 @@ var WebSocket = require('ws');
 
 
 function EurekaDongle(base) {  
-  this.url = base
+  this.url = base;
   this.urlParts = url.parse(base);
   EventEmitter.call(this);
 }
@@ -19,7 +19,6 @@ EurekaDongle.prototype.currentApp = null;
 
 var appList = null;
 EurekaDongle.prototype.collectAppList = function(fn) {
-
   request('https://clients3.google.com/cast/chromecast/device/config', function(e, r, b) {
     var obj = JSON.parse(b.replace(')]}', ''));
     appList = {};
@@ -37,7 +36,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
   var that = this;
 
   if (!name) {
-    return request(this.url + '/apps', {followRedirect: false}, function(e, r, b) {
+    return request(this.url + '/apps', {followRedirect: false}, function(e, r, b) {/* jshint unused: false */
       if (r && r.headers.location) {
         var name = r.headers.location.split('/').pop();
         that.start(name, resource, callback);
@@ -50,7 +49,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
       'Connection' : 'close',
     },
     method : 'POST',
-  }
+  };
   
   this.currentApp = name;
 
@@ -77,7 +76,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
 
     req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
-    req.headers['Content-Length'] = resource.length,
+    req.headers['Content-Length'] = resource.length;
     req.body = resource;
 
     var payload = JSON.stringify({
@@ -88,7 +87,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
       }
     });
 
-    var that = this;
+    that = this;
 
     this.emit('launching');
 
@@ -107,7 +106,7 @@ EurekaDongle.prototype.start = function(name, resource, callback) {
 
         if (r.statusCode === 200) {
           that.timer = setTimeout(function() {
-            that.prepareRampSocket(b)
+            that.prepareRampSocket(b);
           }, 2000);
         } else {
           that.timer = setTimeout(waitForDevice, 500);
@@ -141,6 +140,46 @@ EurekaDongle.prototype.stop = function(name, callback) {
   this.currentApp = null;
 };
 
+EurekaDongle.prototype.pause = function() {
+  try {
+    this.ws.send(JSON.stringify([
+      'ramp', { cmd_id: 3, type: 'STOP' }
+    ]), { mask: true });
+  } catch (e) {
+    this.emit('error', e);
+  }
+};
+
+EurekaDongle.prototype.resume = function(position) {
+  try {
+    this.ws.send(JSON.stringify([
+      'ramp', ((!!position) ? { position: position, cmd_id: 5, type: 'PLAY' } : { cmd_id: 4, type: 'PLAY' })
+    ]), { mask: true });
+  } catch (e) {
+    this.emit('error', e);
+  }
+};
+
+EurekaDongle.prototype.volume = function(volume) {
+  try {
+    this.ws.send(JSON.stringify([
+      'ramp', { volume: volume, cmd_id: 6, type: 'VOLUME' }
+    ]), { mask: true });
+  } catch (e) {
+    this.emit('error', e);
+  }
+};
+
+EurekaDongle.prototype.muted = function(muted) {
+  try {
+    this.ws.send(JSON.stringify([
+      'ramp', { muted: muted, cmd_id: 7, type: 'VOLUME' }
+    ]), { mask: true });
+  } catch (e) {
+    this.emit('error', e);
+  }
+};
+
 EurekaDongle.prototype.prepareRampSocket = function(b) {
   var wsUrl = JSON.parse(b.toString()).URL;
   var that = this;
@@ -150,7 +189,7 @@ EurekaDongle.prototype.prepareRampSocket = function(b) {
   });
  
   var first = true;
-  ws.on('message', function(data, flags) {
+  ws.on('message', function(data, flags) {/* jshint unused: false */
     data = JSON.parse(data);
 
     if (first) {
@@ -183,7 +222,7 @@ EurekaDongle.prototype.prepareRampSocket = function(b) {
       }
 
       that.timer = setTimeout(function() {
-        that.getStatus()
+        that.getStatus();
       }, that.statusInterval);
     }
   });
@@ -192,7 +231,7 @@ EurekaDongle.prototype.prepareRampSocket = function(b) {
 EurekaDongle.prototype.getStatus = function() {
   try {
     this.ws.send(JSON.stringify([
-      'ramp', { cmd_id : 1000, type: 'INFO' }
+      'ramp', { cmd_id: 1000, type: 'INFO' }
     ]), { mask: true });
   } catch (e) {
     this.emit('error', e);
