@@ -1,18 +1,26 @@
 {
-  "name": "eureka-dongle",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "BSD",
-  "devDependencies": {
-    "node-ssdp": "~0.1.1"
-  },
-  "dependencies": {
-    "request": "~2.26.0",
-    "ws": "~0.4.27"
+  "name"           : "eureka-dongle"
+, "version"        : "0.0.1"
+, "description"    : "node.js module for the the Chromecast's very basic functionality"
+, "author"         :  ""
+, "repository"     : {
+    "type"         : "git"
+  , "url"          : "https://github.com/TheThingSystem/eureka-dongle.git"
+  } 
+, "bugs"           : {
+    "url"          : "https://github.com/TheThingSystem/eureka-dongle/issues"
   }
+, "keywords"       : [ "Chromecast", "Eureka" ]
+, "main"           : "./index.js"
+, "engines"        : {
+    "node"         : ">=0.8"
+  }
+, "dependencies"   : {
+    "request"      : "~2.26.0"
+  , "ws"           : "~0.4.27"
+  }
+, "devDependencies": {
+    "node-ssdp"    : "~0.1.1"
+  }
+, "readmeFilename" : "README.md"
 }
