@@ -1,6 +1,6 @@
 {
   "name"           : "eureka-dongle"
-, "version"        : "0.0.1"
+, "version"        : "0.1.0"
 , "description"    : "node.js module for the the Chromecast's very basic functionality"
 , "author"         :  ""
 , "repository"     : {
