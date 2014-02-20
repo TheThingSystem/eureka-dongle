@@ -226,7 +226,7 @@ EurekaDongle.prototype.prepareRampSocket = function(b) {
       }, that.statusInterval);
     }
   }).on('error', function(err) {
-    that.emit('error', e);
+    that.emit('error', err);
   });
 };
 
